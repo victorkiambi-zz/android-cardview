@@ -1,6 +1,8 @@
 package com.cardview;
 
 import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
@@ -9,6 +11,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -39,10 +42,32 @@ public class AlbumsAdapter extends RecyclerView.Adapter<AlbumsAdapter.MyViewHold
     @Override
     public void onBindViewHolder(@NonNull final MyViewHolder myViewHolder, int i) {
 
-        Album album = albumList.get(i);
+        final Album album = albumList.get(i);
         myViewHolder.title.setText(album.getName());
         myViewHolder.count.setText(album.getNumOfSongs() + " songs");
         myViewHolder.thumbnail.setImageResource(album.getThumbnail());
+        myViewHolder.share.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+                sharingIntent.setType("text/plain");
+                String shareBody = "Here is the share content body";
+                sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Subject Here");
+                sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
+                mContext.startActivity(Intent.createChooser(sharingIntent, "Share via"));
+            }
+        });
+        myViewHolder.thumbnail.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(mContext, NextActivity.class);
+                Bundle bundle=new Bundle();
+                bundle.putInt("image",album.getThumbnail());
+                intent.putExtras(bundle);
+                mContext.startActivity(intent);
+
+            }
+        });
 
         // loading album cover using Glide library
 //        Glide.with(mContext).load(album.getThumbnail()).into(myViewHolder.thumbnail);
@@ -53,6 +78,8 @@ public class AlbumsAdapter extends RecyclerView.Adapter<AlbumsAdapter.MyViewHold
                 showPopupMenu(myViewHolder.overflow);
             }
         });
+
+
     }
 
     private void showPopupMenu(View view) {
@@ -74,6 +101,7 @@ public class AlbumsAdapter extends RecyclerView.Adapter<AlbumsAdapter.MyViewHold
     public class MyViewHolder extends RecyclerView.ViewHolder {
         public TextView title, count;
         public ImageView thumbnail, overflow;
+        public Button share;
 
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -81,6 +109,8 @@ public class AlbumsAdapter extends RecyclerView.Adapter<AlbumsAdapter.MyViewHold
             count = itemView.findViewById(R.id.count);
             thumbnail = itemView.findViewById(R.id.thumbnail);
             overflow = itemView.findViewById(R.id.overflow);
+            share = itemView.findViewById(R.id.btnshare);
+
         }
     }
 
